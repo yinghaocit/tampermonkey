@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CoverMore辅助工具
 // @namespace    http://tampermonkey.net/
-// @version      v0.1.2
+// @version      0.1.3
 // @description  CoverMore的辅助小工具
 // @author       EchoJ
 // @include      *insurance*
@@ -18,14 +18,14 @@
 
   // 创建一个悬浮按钮
   function createButton(text, clickHandler) {
-    var button = document.createElement('button');
+    const button = document.createElement('button');
     button.textContent = text;
     button.style.position = 'fixed';
 
     // 计算 bottom 和 right 的值
-    var numButtons = document.querySelectorAll('.echo-j-button').length; // 选择具有特定类名的按钮进行计数
-    var bottom = 50 + numButtons * 60 + 'px';
-    var right = '20px';
+    const numButtons = document.querySelectorAll('.echo-j-button').length;
+    const bottom = 50 + numButtons * 60 + 'px';
+    const right = '20px';
 
     button.style.bottom = bottom;
     button.style.right = right;
@@ -37,16 +37,17 @@
     button.style.cursor = 'pointer';
     button.addEventListener('click', clickHandler);
 
-    button.classList.add('echo-j-button'); // 添加类名 "echo-j-button"
+    // 添加类名 "echo-j-button"
+    button.classList.add('echo-j-button');
     document.body.appendChild(button);
-
   }
+
   // 复制文本到剪贴板
   function copyToClipboard(text) {
     if (navigator.clipboard) {
-      navigator.clipboard.writeText(text).then(function() {
+      navigator.clipboard.writeText(text).then(function () {
         alert(text + ' 已复制');
-      }).catch(function(error) {
+      }).catch(function (error) {
         console.error('复制失败: ', error);
         alert('复制失败');
       });
@@ -62,16 +63,35 @@
     }
   }
 
-  // 生成链接方法
-  function generateLink() {
+  // 获取 recallID 值方法
+  function getRecallID() {
     const recallElement = document.getElementById('recallID');
     if (recallElement) {
-      const recallID = recallElement.value;
+      return recallElement.value;
+    } else {
+      return 'Nil';
+    }
+  }
+
+  // 复制 recallID 值方法
+  function copyRecallID() {
+    const recallID = getRecallID();
+    if (recallID && recallID !== 'Nil') {
+      copyToClipboard(recallID);
+    } else {
+      alert('未找到 recall ID');
+    }
+  }
+
+  // 生成链接方法
+  function copyRecallLink() {
+    const recallID = getRecallID();
+    if (recallID && recallID !== 'Nil') {
       const currentURL = window.location.origin; // 获取协议和域名部分
       const recallLink = `${currentURL}/recall-quote-v2?quoteId=${recallID}`;
       copyToClipboard(recallLink);
     } else {
-      alert('未找到 recallID 元素');
+      alert('未找到 recall ID');
     }
   }
 
@@ -97,36 +117,16 @@
 
   // 复制 recallID 值方法
   function copySiteID() {
-    const recallElement = getSiteID();
-    if (recallElement) {
-      copyToClipboard(recallElement);
+    const siteID = getSiteID();
+    if (siteID && siteID !== 'Nil') {
+      copyToClipboard(siteID);
     } else {
-      alert('未找到 site ID ');
-    }
-  }
-
-  // 复制 recallID 值方法
-  function copyRecallID() {
-    const recallElement = getRecallID();
-    if (recallElement) {
-      copyToClipboard(recallElement);
-    } else {
-      alert('未找到 recallID 元素');
-    }
-  }
-
-  // 复制 recallID 值方法
-  function getRecallID() {
-    const recallElement = document.getElementById('recallID');
-    if (recallElement) {
-      return recallElement.value;
-    } else {
-      return 'Nil';
+      alert('未找到 site ID');
     }
   }
 
   // 创建生成链接按钮
-  createButton('生成 recall-v2 链接', generateLink);
+  createButton('复制 recall-v2 链接', copyRecallLink);
 
   // 创建复制 recallID 值按钮
   createButton('复制 recallID: ' + getRecallID(), copyRecallID);
