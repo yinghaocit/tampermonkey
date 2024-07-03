@@ -6,6 +6,7 @@
 // @author       EchoJ
 // @include      *insurance*
 // @include      *covermore*
+// @include      *local*
 // @grant        none
 // @license      MIT
 // @downloadURL https://update.greasyfork.org/scripts/499553/CoverMore%E8%BE%85%E5%8A%A9%E5%B7%A5%E5%85%B7.user.js
