@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CoverMore辅助工具
 // @namespace    http://tampermonkey.net/
-// @version      v0.1.1
+// @version      v0.1.2
 // @description  CoverMore的辅助小工具
 // @author       EchoJ
 // @include      *insurance*
@@ -40,85 +40,86 @@
     document.body.appendChild(button);
 
   }
-
   // 复制文本到剪贴板
   function copyToClipboard(text) {
-    var tempInput = document.createElement('input');
-    tempInput.value = text;
-    document.body.appendChild(tempInput);
-    tempInput.select();
-    document.execCommand('copy');
-    document.body.removeChild(tempInput);
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(text).then(function() {
+        alert(text + ' 已复制');
+      }).catch(function(error) {
+        console.error('复制失败: ', error);
+        alert('复制失败');
+      });
+    } else {
+      // 兼容不支持 Clipboard API 的旧浏览器
+      const tempInput = document.createElement('input');
+      tempInput.value = text;
+      document.body.appendChild(tempInput);
+      tempInput.select();
+      document.execCommand('copy');
+      document.body.removeChild(tempInput);
+      alert(text + ' 已复制');
+    }
   }
 
   // 生成链接方法
   function generateLink() {
-    var recallElement = document.getElementById('recallID');
+    const recallElement = document.getElementById('recallID');
     if (recallElement) {
-      var recallID = recallElement.value;
-      var currentURL = window.location.origin; // 获取协议和域名部分
-      var recallLink = `${currentURL}/recall-quote-v2?quoteId=${recallID}`;
-
-      // 创建一个临时文本框来实现复制链接
+      const recallID = recallElement.value;
+      const currentURL = window.location.origin; // 获取协议和域名部分
+      const recallLink = `${currentURL}/recall-quote-v2?quoteId=${recallID}`;
       copyToClipboard(recallLink);
-
-      alert(recallLink + '已复制');
-    }
-    else {
+    } else {
       alert('未找到 recallID 元素');
     }
   }
 
   // 获取 Site ID 值方法
   function getSiteID() {
-    var linkElements = document.querySelectorAll('script');
-    var pattern = /\/sites\/g\/files\/xfwnwa(\d+)/;
-    var siteid = '';
+    const linkElements = document.querySelectorAll('script');
+    const pattern = /\/sites\/g\/files\/xfwnwa(\d+)/;
+    let siteID = 'Nil';
     for (let index = 0; index < linkElements.length; index++) {
-      if(!linkElements[index].hasAttribute('src')) continue;
-      var href = linkElements[index].getAttribute('src');
-      var match = href.match(pattern);
+      if (!linkElements[index].hasAttribute('src')) {
+        continue;
+      }
+      const href = linkElements[index].getAttribute('src');
+      const match = href.match(pattern);
       if (match) {
         // 提取数字部分
-        siteid = match[1];
+        siteID = match[1];
         break;
       }
     }
-    return siteid;
+    return siteID;
   }
 
   // 复制 recallID 值方法
   function copySiteID() {
-
-    var recallElement = getSiteID();
+    const recallElement = getSiteID();
     if (recallElement) {
       copyToClipboard(recallElement);
-      alert(recallElement + '已复制');
-    }
-    else {
+    } else {
       alert('未找到 site ID ');
     }
   }
 
   // 复制 recallID 值方法
   function copyRecallID() {
-    var recallElement = getRecallID();
+    const recallElement = getRecallID();
     if (recallElement) {
       copyToClipboard(recallElement);
-      alert(recallElement + '已复制');
-    }
-    else {
+    } else {
       alert('未找到 recallID 元素');
     }
   }
 
   // 复制 recallID 值方法
   function getRecallID() {
-    var recallElement = document.getElementById('recallID');
+    const recallElement = document.getElementById('recallID');
     if (recallElement) {
       return recallElement.value;
-    }
-    else {
+    } else {
       return 'Nil';
     }
   }
@@ -129,7 +130,7 @@
   // 创建复制 recallID 值按钮
   createButton('复制 recallID: ' + getRecallID(), copyRecallID);
 
-  // 创建复制 recallID 值按钮
+  // 创建复制 siteID 值按钮
   createButton('复制 siteID: ' + getSiteID(), copySiteID);
 
 })();
