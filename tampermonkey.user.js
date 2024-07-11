@@ -46,10 +46,20 @@
   function copyToClipboard(text) {
     if (navigator.clipboard) {
       navigator.clipboard.writeText(text).then(function () {
-        alert(text + ' 已复制');
+        Swal.fire({
+          icon: 'success',
+          title: text + ' 已复制',
+          showConfirmButton: false,
+          timer: 1500
+        });
       }).catch(function (error) {
         console.error('复制失败: ', error);
-        alert('复制失败');
+        Swal.fire({
+          icon: 'error',
+          title: '复制失败',
+          showConfirmButton: false,
+          timer: 1500
+        });
       });
     } else {
       // 兼容不支持 Clipboard API 的旧浏览器
@@ -59,7 +69,12 @@
       tempInput.select();
       document.execCommand('copy');
       document.body.removeChild(tempInput);
-      alert(text + ' 已复制');
+      Swal.fire({
+        icon: 'success',
+        title: text + ' 已复制',
+        showConfirmButton: false,
+        timer: 1500
+      });
     }
   }
 
@@ -79,7 +94,12 @@
     if (recallID && recallID !== 'Nil') {
       copyToClipboard(recallID);
     } else {
-      alert('未找到 recall ID');
+      Swal.fire({
+        icon: 'error',
+        title: '未找到 recall ID',
+        showConfirmButton: false,
+        timer: 1500
+      });
     }
   }
 
@@ -91,7 +111,12 @@
       const recallLink = `${currentURL}/recall-quote-v2?quoteId=${recallID}`;
       copyToClipboard(recallLink);
     } else {
-      alert('未找到 recall ID');
+      Swal.fire({
+        icon: 'error',
+        title: '未找到 recall ID',
+        showConfirmButton: false,
+        timer: 1500
+      });
     }
   }
 
@@ -121,17 +146,51 @@
     if (siteID && siteID !== 'Nil') {
       copyToClipboard(siteID);
     } else {
-      alert('未找到 site ID');
+      Swal.fire({
+        icon: 'error',
+        title: '未找到 site ID',
+        showConfirmButton: false,
+        timer: 1500
+      });
     }
   }
 
-  // 创建生成链接按钮
-  createButton('复制 recall-v2 链接', copyRecallLink);
 
-  // 创建复制 recallID 值按钮
-  createButton('复制 recallID: ' + getRecallID(), copyRecallID);
+  function loadScript(url, callback) {
+    const script = document.createElement('script');
+    script.type = 'text/javascript';
+    script.src = url;
 
-  // 创建复制 siteID 值按钮
-  createButton('复制 siteID: ' + getSiteID(), copySiteID);
+    // 确保在脚本加载完成后执行回调函数
+    script.onload = function () {
+      callback();
+    };
+
+    // 将脚本添加到文档的 <head> 中
+    document.head.appendChild(script);
+  }
+
+  function loadCSS(url) {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.type = 'text/css';
+    link.href = url;
+
+    // 将样式表添加到文档的 <head> 中
+    document.head.appendChild(link);
+  }
+
+  loadCSS('https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css');
+  loadScript('https://cdn.jsdelivr.net/npm/sweetalert2@11', function () {
+    console.log('SweetAlert2 已加载');
+    // 创建生成链接按钮
+    createButton('复制 recall-v2 链接', copyRecallLink);
+
+    // 创建复制 recallID 值按钮
+    createButton('复制 recallID: ' + getRecallID(), copyRecallID);
+
+    // 创建复制 siteID 值按钮
+    createButton('复制 siteID: ' + getSiteID(), copySiteID);
+  });
 
 })();
